@@ -5,11 +5,10 @@ import socket
 from multiprocessing import Array, Process, Lock
 
 def get_weather(output):
-  # Get own API key
-  api="https://openweathermap.org/api"
-	lat=00.00
-	lon=00.00
-	celsius='\ufa03'
+	# Get own API key
+	api="https://openweathermap.org/api"
+	lat=55.81632
+	lon=49.18270
 	icons={
 	'01d':'\ue30d',
 	'02d':'\ue302',
@@ -31,16 +30,21 @@ def get_weather(output):
 	'50n':'\ue313'
 	}
 	while 1:
-		url="https://api.openweathermap.org/data/2.5/weather?units=metric&lat={}&lon={}&appid={}".format(lat,lon,api)
-		data=json.loads(requests.get(url).content)
+		url="http://api.openweathermap.org/data/2.5/weather?units=metric&lat={}&lon={}&appid={}".format(lat,lon,api)
+		while True:
+			try:
+				data=json.loads(requests.get(url).content)
+				break
+			except:
+				pass
 		icon=icons[data['weather'][0]['icon']]
-		temp="{}{}".format(data['main']['temp'],celsius)
-		output.value="{} {}".format(icon,temp).encode('u8')
-		time.sleep(60)
+		temp="{}".format(data['main']['temp'])
+		output.value="{}  {}".format(icon,temp).encode('u8')
+		time.sleep(300)
 
 if __name__=="__main__":
 	lock=Lock()
-	weather=Array('c',b'\ue374??.??\ufa03',lock=lock)
+	weather=Array('c',b' '*9,lock=lock)
 	Process(target=get_weather, args=(weather,)).start()
 	port=1024
 	s = socket.socket()
