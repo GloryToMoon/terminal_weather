@@ -44,7 +44,7 @@ def get_weather(output):
 
 if __name__=="__main__":
 	lock=Lock()
-	weather=Array('c',b' '*9,lock=lock)
+	weather=Array('c',b' '*11,lock=lock)
 	Process(target=get_weather, args=(weather,)).start()
 	port=1024
 	s = socket.socket()
@@ -58,5 +58,8 @@ if __name__=="__main__":
 	s.listen()
 	while True:
 		c, addr = s.accept()
-		c.send(weather[:].split(b"\x00")[0])
+		if b"    " in weather[:].split(b"\x00")[0]:
+			c.send(b"")
+		else:
+			c.send(weather[:].split(b"\x00")[0])
 		c.close()
